@@ -1,6 +1,11 @@
+import sh
+import re
+import socket
 import os.path
 import argparse
+import graphyte
 
+HOSTNAME = socket.gethostname()
 DEFAULT_URI = 'localhost'
 DEFAULT_FILE = '/var/log/cpu-lat.log'
 DEFAULT_METRIC = 'cpu-lat'
@@ -9,11 +14,16 @@ DEFAULT_METRIC = 'cpu-lat'
 def main():
     parser = get_parser()
     args = parser.parse_args()
+    capture_and_ship(args)
     
 
 def get_parser():
     """
     Specifies and handles input arguments.
+    Supports argments specifiying:
+        - Log filepath
+        - Graphite URI
+        - Metric type
 
     Returns: argparser
     """
@@ -29,6 +39,53 @@ def get_parser():
     return parser
 
 
+def capture_and_ship(args):
+    """
+    Tails logs streaming into a specific file and
+    ships data to graphite using the GraphiteClient.
+
+    Parameters:
+    args (object): contains the argment/defaultss from the argparser
+    """
+
+    client = GraphiteClient(args.metric, args.uri)
+
+    for line in sh.tail("-f", args.file, _iter=True):
+        parsed_values = re.findall(r'[0-9+]', line)
+
+        if len(parsed_values) > 0:
+            client.send(parsed_values[0], parsed_values[-1])
+
+
+class GraphiteClient(object):
+    """
+    The GraphiteClient class interfaces with graphite service
+    to connect and ship data.
+    """
+
+    def __init__(self, metric, uri):
+        """
+        Parameters:
+        metric (str): metric type to form key
+        uri (str): the uri for the graphit service
+        """
+
+        prefix = '.'.join([HOSTNAME, metric])
+        graphyte.init(uri, prefix=prefix)
+
+    def send(self, bucket, value):
+        """
+        Parameters:
+        bucket: the value should be the lower bound of each bucket
+        value: numeric value
+        """
+
+        # TODO: Test with graphite
+        # TODO: confirm ideal variable types:
+        #       should be indifferent of str, unicode, int
+        graphyte.send(bucket, value)
+
+
 def is_valid_file(parser, filepath):
     """
     Verifies if a file path exists and is a file:
@@ -37,7 +94,7 @@ def is_valid_file(parser, filepath):
 
     Parameters:
     parser: argparser
-    filepath: the path to the log file
+    filepath (str): the path to the log file
 
     Returns:
     str: The filepath
