@@ -1,3 +1,4 @@
+import os.path
 import argparse
 
 DEFAULT_URI = 'localhost'
@@ -20,6 +21,13 @@ def get_parser():
                     help='metric type which makes up the key')
 
     return parser
+
+
+def is_valid_file(parser, arg):
+    if os.path.isfile(arg):
+        return arg
+    else:
+        parser.error("The file %s does not exist!" % arg)
 
 
 if __name__ == '__main__':
