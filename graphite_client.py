@@ -45,16 +45,16 @@ def capture_and_ship(args):
     ships data to graphite using the GraphiteClient.
 
     Parameters:
-    args (object): contains the argment/defaultss from the argparser
+    args (object): contains the argment/defaults from the argparser
     """
 
     client = GraphiteClient(args.metric, args.uri)
 
     for line in sh.tail("-f", args.file, _iter=True):
-        parsed_values = re.findall(r'[0-9+]', line)
+        parsed_values = re.findall(r'[0-9+]', line) # regex finds all digits
 
         if len(parsed_values) > 0:
-            client.send(parsed_values[0], parsed_values[-1])
+            client.send(parsed_values[0], parsed_values[-1]) # strips out the upper bound bucket
 
 
 class GraphiteClient(object):
@@ -70,7 +70,7 @@ class GraphiteClient(object):
         uri (str): the uri for the graphit service
         """
 
-        prefix = '.'.join([HOSTNAME, metric])
+        prefix = '.'.join([HOSTNAME, metric]) # generates prefix for key
         graphyte.init(uri, prefix=prefix)
 
     def send(self, bucket, value):
