@@ -12,6 +12,12 @@ def main():
     
 
 def get_parser():
+    """
+    Specifies and handles input arguments.
+
+    Returns: argparser
+    """
+
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-f', '--file', default=DEFAULT_FILE, metavar='file',
                     help='log file to tail from')
@@ -23,11 +29,24 @@ def get_parser():
     return parser
 
 
-def is_valid_file(parser, arg):
-    if os.path.isfile(arg):
-        return arg
+def is_valid_file(parser, filepath):
+    """
+    Verifies if a file path exists and is a file:
+    returns the filename if True,
+    raises a parser error if file does not exist.
+
+    Parameters:
+    parser: argparser
+    filepath: the path to the log file
+
+    Returns:
+    str: The filepath
+    """
+
+    if os.path.isfile(filepath):
+        return filepath
     else:
-        parser.error("The file %s does not exist!" % arg)
+        parser.error("The file %s does not exist!" % filepath)
 
 
 if __name__ == '__main__':
