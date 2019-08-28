@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sh
 import re
 import socket
@@ -12,6 +13,8 @@ DEFAULT_METRIC = 'cpu-lat'
 
 
 def main():
+    print "Running graphite client... Hit Ctrl-C to end.\n"
+
     parser = get_parser()
     args = parser.parse_args()
     capture_and_ship(args)
@@ -50,7 +53,7 @@ def capture_and_ship(args):
 
     client = GraphiteClient(args.metric, args.uri)
 
-    for line in sh.tail("-f", args.file, _iter=True):
+    for line in sh.tail('-f', args.file, _iter=True):
         parsed_values = re.findall(r'[0-9+]', line) # regex finds all digits
 
         if len(parsed_values) > 0:

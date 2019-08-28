@@ -28,6 +28,37 @@ All tests are run using pytest:
 pytest --vvra tests
 ```
 
+# How to
+
+The graphite-client script tails a bpftrace log file for updates and ships the data to a graphite service.
+
+Expected bpftrace data in log file:
+```
+@usecs: 
+[1]                    1 |@@@@@                                               |
+[2, 4)                 1 |@@@@@                                               |
+[4, 8)                 2 |@@@@@@@@@@                                          |
+[8, 16)                3 |@@@@@@@@@@@@@@@                                     |
+[16, 32)              10 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+```
+
+### Getting Started
+
+This code has dependencies which will need to be installed alongside the script or tested using virtualenv.
+
+To run manually either install the dependencies locally using `pip install -r requirements.txt -t .` or activate the virtual environment `source ./venv/bin/activate`. The script can be ran using the following command `python ./graphite_client.py` or `./graphite_client.py` and hit Ctrl-C to end.
+
+The script supports the following arguments:
+
+| Variable | Option       | Description                     | Default                |
+|----------|--------------|---------------------------------|------------------------|
+| File     | -f, --file   | File path of log file           | `/var/log/cpu-lat.log` |
+| Metric   | -m, --metric | Graphite metric to generate key | 'cpu-lat'              |
+| URI      | --uri        | Graphite URI                    | 'localhost'            |
+
+**Example**
+`./graphite_client.py -f /var/log/bpftrace.log -m bpftrace -h graphite.example.com`
+
 
 # Notes
 In order for this script to be effective, it requires to be running continuously in the background along with the bpftrace script. The graphite-client script expects the bpftrace to output data to a log somewhere to be consumed, captured, and shipped. I employed a loosley coupled approach to achieving the desired result, this will ensure that both scripts can run or break independently without interfering with the other. I recommend using a process contorl system like supervisord to ensure that both scripts aare continuously running in addition to configuring log rotate to clean up the logs - this will ensure that the script can run non-interactively.
@@ -55,5 +86,6 @@ For peace of mind, many companies strive for immutibility across all of there se
 * Testing integration with graphite server
 * Integration testing, perhaps with a docker graphite server for local testing
 * A deployment strategy and configuration
+* Installation artifact to bundle the dependencies
 * Documentation on how to configure a process control system and configure log rotate
 
