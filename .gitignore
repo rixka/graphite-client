@@ -1,0 +1,8 @@
+# === FILES === #
+*.pyc
+
+# === DIRS === #
+venv
+.cache
+__pycache__
+.pytest_cache
