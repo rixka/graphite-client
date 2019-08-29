@@ -31,7 +31,7 @@ def get_parser():
     Returns: argparser
     """
 
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='Override default configuration for graphite client.')
     parser.add_argument('-f', '--file', default=DEFAULT_FILE, metavar='file',
                     help='log file to tail from')
     parser.add_argument('--uri', default=DEFAULT_URI,
